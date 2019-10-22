@@ -3132,4 +3132,6 @@
 
 #define PCI_VENDOR_ID_NCUBE		0x10ff
 
+#define PCI_VENDOR_ID_MICROSOFT		0x1414
+
 #endif /* _LINUX_PCI_IDS_H */

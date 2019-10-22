@@ -4769,6 +4769,7 @@ static const struct pci_dev_acs_enabled {
 	{ PCI_VENDOR_ID_ZHAOXIN, 0x9083, pci_quirk_mf_endpoint_acs },
 	/* Zhaoxin Root/Downstream Ports */
 	{ PCI_VENDOR_ID_ZHAOXIN, PCI_ANY_ID, pci_quirk_zhaoxin_pcie_ports_acs },
+	{ PCI_VENDOR_ID_MICROSOFT, PCI_ANY_ID, pci_quirk_mf_endpoint_acs },
 	{ 0 }
 };
 
