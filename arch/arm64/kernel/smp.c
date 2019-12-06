@@ -844,11 +844,17 @@ void arch_irq_work_raise(void)
 
 static void local_cpu_stop(void)
 {
+	unsigned int cpu = smp_processor_id();
+
 	set_cpu_online(smp_processor_id(), false);
 
 	local_daif_mask();
 	sdei_mask_local_cpu();
-	cpu_park_loop();
+
+	if (IS_ENABLED(CONFIG_HOTPLUG_CPU))
+		__cpu_try_die(cpu);
+	else
+		cpu_park_loop();
 }
 
 /*
