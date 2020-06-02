@@ -146,6 +146,9 @@
 	diagbe@57 {
 		compatible = "microsoft,i2c_slave_diagbe";
 		reg = <0x57>;
+		diagbe,tz-monitor = "ihost0-thermal", "ihost1-thermal",
+				"ihost2-thermal", "ihost3-thermal",
+				"crmu-thermal", "nitro-thermal";
 	};
 };
 
