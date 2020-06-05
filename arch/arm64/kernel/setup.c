@@ -282,6 +282,12 @@ u64 cpu_logical_map(int cpu)
 	return __cpu_logical_map[cpu];
 }
 
+u64 persistent_clock(void)
+{
+	return arch_timer_read_cntvct_el0() *
+		(NSEC_PER_SEC / arch_timer_get_cntfrq());
+}
+
 static __init void sched_clock_early_init(void)
 {
 	u64 (*read_time)(void) = arch_timer_read_cntvct_el0;
@@ -297,6 +303,7 @@ void __init __no_sanitize_address setup_arch(char **cmdline_p)
 	init_mm.brk	   = (unsigned long) _end;
 
 	sched_clock_early_init();
+	pr_msft("kernel boot start\n");
 	*cmdline_p = boot_command_line;
 
 	/*
