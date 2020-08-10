@@ -735,7 +735,16 @@
 			thermal-sensors = <&tmon 0>;
 			trips {
 				cpu-crit {
-					temperature = <100000>;
+					/*
+					 * CRMU's critical temp is set to 105
+					 * which will trip before this kernel
+					 * limit of 110. The thermal protection
+					 * provided by the kernel is
+					 * effectively disabled while still
+					 * providing thermal information to
+					 * userspace in sysfs.
+					 */
+					temperature = <110000>;
 					hysteresis = <0>;
 					type = "critical";
 				};
@@ -747,7 +756,16 @@
 			thermal-sensors = <&tmon 1>;
 			trips {
 				cpu-crit {
-					temperature = <100000>;
+					/*
+					 * CRMU's critical temp is set to 105
+					 * which will trip before this kernel
+					 * limit of 110. The thermal protection
+					 * provided by the kernel is
+					 * effectively disabled while still
+					 * providing thermal information to
+					 * userspace in sysfs.
+					 */
+					temperature = <110000>;
 					hysteresis = <0>;
 					type = "critical";
 				};
@@ -759,7 +777,16 @@
 			thermal-sensors = <&tmon 2>;
 			trips {
 				cpu-crit {
-					temperature = <100000>;
+					/*
+					 * CRMU's critical temp is set to 105
+					 * which will trip before this kernel
+					 * limit of 110. The thermal protection
+					 * provided by the kernel is
+					 * effectively disabled while still
+					 * providing thermal information to
+					 * userspace in sysfs.
+					 */
+					temperature = <110000>;
 					hysteresis = <0>;
 					type = "critical";
 				};
@@ -771,7 +798,16 @@
 			thermal-sensors = <&tmon 3>;
 			trips {
 				cpu-crit {
-					temperature = <100000>;
+					/*
+					 * CRMU's critical temp is set to 105
+					 * which will trip before this kernel
+					 * limit of 110. The thermal protection
+					 * provided by the kernel is
+					 * effectively disabled while still
+					 * providing thermal information to
+					 * userspace in sysfs.
+					 */
+					temperature = <110000>;
 					hysteresis = <0>;
 					type = "critical";
 				};
@@ -783,7 +819,16 @@
 			thermal-sensors = <&tmon 4>;
 			trips {
 				cpu-crit {
-					temperature = <100000>;
+					/*
+					 * CRMU's critical temp is set to 105
+					 * which will trip before this kernel
+					 * limit of 110. The thermal protection
+					 * provided by the kernel is
+					 * effectively disabled while still
+					 * providing thermal information to
+					 * userspace in sysfs.
+					 */
+					temperature = <110000>;
 					hysteresis = <0>;
 					type = "critical";
 				};
@@ -795,7 +840,16 @@
 			thermal-sensors = <&tmon 5>;
 			trips {
 				cpu-crit {
-					temperature = <100000>;
+					/*
+					 * CRMU's critical temp is set to 105
+					 * which will trip before this kernel
+					 * limit of 110. The thermal protection
+					 * provided by the kernel is
+					 * effectively disabled while still
+					 * providing thermal information to
+					 * userspace in sysfs.
+					 */
+					temperature = <110000>;
 					hysteresis = <0>;
 					type = "critical";
 				};
