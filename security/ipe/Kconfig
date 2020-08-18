@@ -5,7 +5,7 @@
 
 menuconfig SECURITY_IPE
 	bool "Integrity Policy Enforcement (IPE)"
-	depends on SECURITY && AUDIT
+	depends on SECURITY && AUDIT && BLOCK
 	select SYSTEM_DATA_VERIFICATION
 	select SECURITYFS
 	select CRYPTO_SHA1

@@ -24,6 +24,7 @@ obj-$(CONFIG_SECURITY_IPE) += \
 	ipe-property.o \
 	ipe-hooks.o \
 	ipe-secfs.o \
+	ipe-blobs.o \
 
 clean-files := ipe-bp.c
 
