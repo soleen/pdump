@@ -218,6 +218,13 @@ int ipe_process_event(const struct file *file, enum ipe_op op,
 
 	rc = evaluate(ctx);
 
+	/*
+	 * OVERLAKE ERRATA, Revert Tracked by microsoft\ADO #26224024
+	 *
+	 * Allow anonymous memory for libffi
+	 */
+	if (hook == ipe_hook_mmap && !file)
+		rc = 0;
 cleanup:
 	free_ctx(ctx);
 	return rc;
