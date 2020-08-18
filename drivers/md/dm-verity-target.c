@@ -1148,7 +1148,8 @@ static int verity_ctr(struct dm_target *ti, unsigned argc, char **argv)
 	r = verity_verify_root_hash(root_hash_digest_to_validate,
 				    strlen(root_hash_digest_to_validate),
 				    verify_args.sig,
-				    verify_args.sig_size);
+				    verify_args.sig_size,
+				    v);
 	if (r < 0) {
 		ti->error = "Root hash verification failed";
 		goto bad;
