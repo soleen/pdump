@@ -42,6 +42,7 @@ void ipe_bdev_free_security(struct block_device *bdev)
 	struct ipe_bdev_blob *bdev_sec = ipe_bdev(bdev);
 
 	kfree(bdev_sec->dmverity_rh_sig);
+	kfree(bdev_sec->dmverity_rh);
 
 	memset(bdev_sec, 0x0, sizeof(*bdev_sec));
 }
@@ -72,6 +73,16 @@ int ipe_bdev_setsecurity(struct block_device *bdev, const char *key,
 			return -ENOMEM;
 
 		bdev_sec->dmv_rh_sig_len = len;
+
+		return 0;
+	}
+
+	if (!strcmp(key, DM_VERITY_ROOTHASH_SEC_NAME)) {
+		bdev_sec->dmverity_rh = kmemdup(value, len, GFP_KERNEL);
+		if (!bdev_sec->dmverity_rh)
+			return -ENOMEM;
+
+		bdev_sec->rh_size = len;
 
 		return 0;
 	}
