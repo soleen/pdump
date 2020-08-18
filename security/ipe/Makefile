@@ -19,7 +19,10 @@ obj-$(CONFIG_SECURITY_IPE) += \
 	ipe-audit.o \
 	ipe-bp.o \
 	ipe-engine.o \
+	ipe-parse.o \
+	ipe-policy.o \
 	ipe-property.o \
 	ipe-hooks.o \
+	ipe-secfs.o \
 
 clean-files := ipe-bp.c

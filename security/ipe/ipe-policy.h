@@ -14,9 +14,6 @@
 #ifndef IPE_POLICY_H
 #define IPE_POLICY_H
 
-#define IPE_HEADER_POLICY_NAME		"policy_name"
-#define IPE_HEADER_POLICY_VERSION	"policy_version"
-
 extern const char *const ipe_boot_policy;
 extern const struct ipe_policy *ipe_active_policy;
 
@@ -58,5 +55,15 @@ struct ipe_policy {
 	/* KERNEL_READ stores no data itself */
 	struct ipe_rule_table ops[ipe_op_max - 1];
 };
+
+bool ipe_is_valid_policy(const struct ipe_policy *old,
+			 const struct ipe_policy *new);
+
+bool ipe_is_active_policy(const struct ipe_policy *policy);
+
+int ipe_update_active_policy(const struct ipe_policy *old,
+			     const struct ipe_policy *new);
+
+int ipe_activate_policy(const struct ipe_policy *policy);
 
 #endif /* IPE_POLICY_H */

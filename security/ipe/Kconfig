@@ -7,6 +7,8 @@ menuconfig SECURITY_IPE
 	bool "Integrity Policy Enforcement (IPE)"
 	depends on SECURITY && AUDIT
 	select SYSTEM_DATA_VERIFICATION
+	select SECURITYFS
+	select CRYPTO_SHA1
 	help
 	  This option enables the Integrity Policy Enforcement subsystem
 	  allowing systems to enforce integrity having no dependencies

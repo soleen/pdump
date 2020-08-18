@@ -12,7 +12,7 @@
 #include <linux/slab.h>
 
 /* global root containing all registered properties */
-struct rb_root ipe_registry_root = RB_ROOT;
+static struct rb_root ipe_registry_root = RB_ROOT;
 
 /**
  * reg_lookup: Attempt to find a `prop_reg` structure with property_name @key.
@@ -70,7 +70,8 @@ const struct ipe_property *ipe_lookup_prop(const char *key)
  * the system, after calling ipe_register_property.
  *
  * All necessary properties need to be loaded via this method before
- * loading a policy, otherwise the properties will be ignored as unknown.
+ * loading a policy, otherwise the marked as unknown, and cause parsing to
+ * fail.
  *
  * Return:
  * 0 - OK
@@ -113,9 +114,9 @@ int ipe_register_property(const struct ipe_property *prop)
 
 /**
  * ipe_for_each_prop: Iterate over all currently-registered properties
- *	calling @fn on the values, and providing @view @ctx.
+ *		      calling @fn on the values, and providing @view @ctx.
  * @view: The function to call for each property. This is given the property
- *	structure as the first argument, and @ctx as the second.
+ *	  structure as the first argument, and @ctx as the second.
  * @ctx: caller-specified context that is passed to the function. Can be NULL.
  *
  * Return:

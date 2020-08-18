@@ -86,6 +86,7 @@ typedef void (*ipe_free_value)(void **value);
 
 struct ipe_property {
 	const char			*const property_name;
+	u16				version;
 	ipe_property_evaluator		eval;
 	ipe_property_audit		rule_audit;
 	ipe_ctx_audit			ctx_audit;
