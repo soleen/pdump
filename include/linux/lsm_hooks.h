@@ -581,6 +581,15 @@
  *	Save open-time permission checking state for later use upon
  *	file_permission, and recheck access if anything has changed
  *	since inode_permission.
+ * @file_set_userspace_pathname:
+ *	Save the filename structure, which contains the pathname of the file
+ *	from the userspace, during the call of path_openat function into
+ *	file->f_security for later use by the file_open hook. Note that the
+ *	name should not be trusted as it can contains arbitrary data from
+ *	the userspace.
+ *	@file contains the file structure to update
+ *	@name contains the filename structure to copy
+ *	Return 0 on success.
  *
  * Security hooks for task operations.
  *
