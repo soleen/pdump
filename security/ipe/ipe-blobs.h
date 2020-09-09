@@ -16,4 +16,9 @@ static inline struct ipe_bdev_blob *ipe_bdev(struct block_device *bdev)
 	return bdev->security + ipe_blobs.lbs_bdev;
 }
 
+static inline struct ipe_file_blob *ipe_file(const struct file *file)
+{
+	return file->f_security + ipe_blobs.lbs_file;
+}
+
 #endif /* IPE_BLOB_H */

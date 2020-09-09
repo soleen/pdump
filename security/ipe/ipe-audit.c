@@ -30,6 +30,7 @@ const char *audit_op_names[] = {
 	IPE_OP_X509_CERTIFICATE,
 	IPE_OP_POLICY,
 	IPE_OP_KMODULE,
+	IPE_OP_READ,
 	IPE_OP_KERNEL_READ,
 	IPE_UNKNOWN,
 };

@@ -27,6 +27,7 @@ static struct security_hook_list ipe_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(bdev_free_security, ipe_bdev_free_security),
 	LSM_HOOK_INIT(bdev_setsecurity, ipe_bdev_setsecurity),
 	LSM_HOOK_INIT(file_open, ipe_file_open),
+	LSM_HOOK_INIT(file_free_security, ipe_file_free_security),
 };
 
 /**
@@ -86,7 +87,7 @@ static int __init ipe_init(void)
 
 struct lsm_blob_sizes ipe_blobs __lsm_ro_after_init = {
 	.lbs_cred = 0,
-	.lbs_file = 0,
+	.lbs_file = sizeof(struct ipe_file_blob),
 	.lbs_inode = 0,
 	.lbs_ipc = 0,
 	.lbs_msg_msg = 0,

@@ -89,3 +89,18 @@ int ipe_bdev_setsecurity(struct block_device *bdev, const char *key,
 
 	return -ENOSYS;
 }
+
+/**
+ * ipe_file_free_security: Frees all fields of IPE's file security blob.
+ * @f: The file structure to source the security blob from.
+ *
+ * The deallocation of the blob itself is performed later by the LSM
+ * infrastructure, (on behalf of all LSMs) in lsm_free_file.
+ *
+ */
+void ipe_file_free_security(struct file *f)
+{
+	struct ipe_file_blob *file_sec = ipe_file(f);
+
+	memset(file_sec, 0x0, sizeof(*file_sec));
+}

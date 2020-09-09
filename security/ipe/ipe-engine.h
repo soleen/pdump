@@ -23,12 +23,15 @@ struct ipe_bdev_blob {
 	size_t rh_size;
 };
 
+struct ipe_file_blob {};
+
 struct ipe_engine_ctx {
 	enum ipe_op op;
 	enum ipe_hook hook;
 	const struct file *file;
 	const char *audit_pathname;
 	const struct ipe_bdev_blob *sec_bdev;
+	const struct ipe_file_blob *sec_file;
 };
 
 struct ipe_prop_cache {

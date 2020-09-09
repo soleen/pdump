@@ -112,6 +112,10 @@ static struct ipe_engine_ctx *build_ctx(const struct file *file,
 	local->file = file;
 	local->op = op;
 	local->hook = hook;
+	if (file)
+		local->sec_file = ipe_file(file);
+	else
+		local->sec_file = NULL;
 
 	if (has_bdev(file))
 		local->sec_bdev = ipe_bdev(bdev(file));
@@ -203,7 +207,14 @@ int ipe_process_event(const struct file *file, enum ipe_op op,
 	if (IS_ERR(ctx))
 		goto cleanup;
 
-	ipe_pin_superblock(ctx->file);
+	/* 
+	 * During boot kernel_init will trigger read to open device files
+	 * However pin superblock should only apply to the files in the
+	 * booted root file system. Disable pin superblock for all read
+	 * events.
+	 */
+	if (op != ipe_op_read)
+		ipe_pin_superblock(ctx->file);
 
 	rc = evaluate(ctx);
 

@@ -44,6 +44,7 @@ enum ipe_op {
 	ipe_op_x509,
 	ipe_op_policy,
 	ipe_op_kmodule,
+	ipe_op_read,
 	ipe_op_kernel_read,
 	ipe_op_max
 };
@@ -71,5 +72,7 @@ int ipe_bdev_setsecurity(struct block_device *bdev, const char *key,
 			 const void *value, size_t len);
 
 int ipe_file_open(struct file *f);
+
+void ipe_file_free_security(struct file *f);
 
 #endif /* IPE_HOOK_H */

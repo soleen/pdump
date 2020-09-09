@@ -304,6 +304,7 @@ static enum ipe_op ipe_parse_op(struct token *op)
 		{ ipe_op_x509,			IPE_OP_X509_CERTIFICATE },
 		{ ipe_op_policy,		IPE_OP_POLICY },
 		{ ipe_op_kmodule,		IPE_OP_KMODULE },
+		{ ipe_op_read,			IPE_OP_READ },
 		{ ipe_op_kernel_read,		IPE_OP_KERNEL_READ },
 		{ ipe_op_max,			NULL },
 	};

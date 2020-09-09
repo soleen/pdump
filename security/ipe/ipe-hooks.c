@@ -17,6 +17,9 @@
 #include <linux/security.h>
 #include <linux/device-mapper.h>
 
+#define FILE_READ(f) ((f)->f_mode & FMODE_READ)
+#define FILE_EXECUTE(f) ((f)->f_mode & FMODE_EXEC)
+
 /**
  * ipe_on_exec: LSM hook called on the exec family of system calls.
  * @bprm: A structure to hold arguments that are used when loading binaries,
@@ -180,6 +183,10 @@ void ipe_sb_free_security(struct super_block *mnt_sb)
  */
 int ipe_file_open(struct file *f)
 {
-	return 0;
+	int rc = 0;
+	/* EXECUTE covered by several other hooks - unnecessary at open time */
+	if (FILE_READ(f) && !FILE_EXECUTE(f))
+		rc = ipe_process_event(f, ipe_op_read, ipe_hook_open);
+	return rc;
 }
 
