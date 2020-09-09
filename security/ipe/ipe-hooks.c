@@ -168,3 +168,18 @@ void ipe_sb_free_security(struct super_block *mnt_sb)
 {
 	ipe_invalidate_pinned_sb(mnt_sb);
 }
+
+/**
+ * ipe_file_open: LSM hook called on file_open.
+ * @f: file struct created during open
+ *
+ * For more information, see the LSM hook, security_file_open.
+ *
+ * Return:
+ * 0 - OK
+ */
+int ipe_file_open(struct file *f)
+{
+	return 0;
+}
+

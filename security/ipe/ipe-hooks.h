@@ -19,6 +19,7 @@
 #define IPE_HOOK_MPROTECT	"MPROTECT"
 #define IPE_HOOK_KERNEL_READ	"KERNEL_READ"
 #define IPE_HOOK_KERNEL_LOAD	"KERNEL_LOAD"
+#define IPE_HOOK_OPEN	"OPEN"
 
 enum ipe_hook {
 	ipe_hook_exec = 0,
@@ -26,6 +27,7 @@ enum ipe_hook {
 	ipe_hook_mprotect,
 	ipe_hook_kernel_read,
 	ipe_hook_kernel_load,
+	ipe_hook_open,
 	ipe_hook_max
 };
 
@@ -67,5 +69,7 @@ void ipe_bdev_free_security(struct block_device *bdev);
 
 int ipe_bdev_setsecurity(struct block_device *bdev, const char *key,
 			 const void *value, size_t len);
+
+int ipe_file_open(struct file *f);
 
 #endif /* IPE_HOOK_H */

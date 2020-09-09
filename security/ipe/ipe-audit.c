@@ -41,6 +41,7 @@ const char *audit_hook_names[] = {
 	IPE_HOOK_MPROTECT,
 	IPE_HOOK_KERNEL_READ,
 	IPE_HOOK_KERNEL_LOAD,
+	IPE_HOOK_OPEN,
 	IPE_UNKNOWN,
 };
 
