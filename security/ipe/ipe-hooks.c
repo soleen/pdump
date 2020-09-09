@@ -189,4 +189,3 @@ int ipe_file_open(struct file *f)
 		rc = ipe_process_event(f, ipe_op_read, ipe_hook_open);
 	return rc;
 }
-

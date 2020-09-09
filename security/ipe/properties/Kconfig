@@ -34,3 +34,17 @@ config IPE_DM_VERITY_SIGNATURE
 	  "dmverity_signature" in IPE's policy.
 
 	  if unsure, answer Y.
+
+config IPE_INTENDED_PATHNAME
+	bool "Enable property for comparison to the application provided path"
+	help
+	  This option enables IPE's "intended_pathname" property. This is the
+	  original userland, application-provided pathname passed to any open
+	  system call. This can be used by the userland application to signal
+	  its purpose to enforce integrity requirements on paths, such as
+	  verifying all config files in /etc.
+
+	  WARNING: intended_pathname is not a security property and should
+	  only be used for an application to signal it's intent
+
+	  if unsure, answer Y.

@@ -75,4 +75,7 @@ int ipe_file_open(struct file *f);
 
 void ipe_file_free_security(struct file *f);
 
+int ipe_file_set_userspace_pathname(struct file *f,
+				    const struct filename *path);
+
 #endif /* IPE_HOOK_H */

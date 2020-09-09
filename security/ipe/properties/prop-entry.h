@@ -36,3 +36,12 @@ int __init ipe_init_dm_verity_rh(void);
 #endif /* CONFIG_IPE_DM_VERITY_ROOTHASH */
 
 #endif /* IPE_PROP_ENTRY_H */
+
+#ifndef CONFIG_IPE_INTENDED_PATHNAME
+static inline int __init ipe_init_intended_pathname(void)
+{
+	return 0;
+}
+#else
+int __init ipe_init_intended_pathname(void);
+#endif /* CONFIG_IPE_INTENDED_PATHNAME */

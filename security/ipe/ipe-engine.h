@@ -23,7 +23,9 @@ struct ipe_bdev_blob {
 	size_t rh_size;
 };
 
-struct ipe_file_blob {};
+struct ipe_file_blob {
+	const char *app_path;
+};
 
 struct ipe_engine_ctx {
 	enum ipe_op op;

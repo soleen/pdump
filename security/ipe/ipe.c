@@ -28,6 +28,8 @@ static struct security_hook_list ipe_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(bdev_setsecurity, ipe_bdev_setsecurity),
 	LSM_HOOK_INIT(file_open, ipe_file_open),
 	LSM_HOOK_INIT(file_free_security, ipe_file_free_security),
+	LSM_HOOK_INIT(file_set_userspace_pathname,
+		      ipe_file_set_userspace_pathname),
 };
 
 /**
@@ -53,7 +55,7 @@ static int __init ipe_load_properties(void)
 	if (rc != 0)
 		return rc;
 
-	return rc;
+	return ipe_init_intended_pathname();
 }
 
 /**

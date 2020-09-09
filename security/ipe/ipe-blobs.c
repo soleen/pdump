@@ -102,5 +102,30 @@ void ipe_file_free_security(struct file *f)
 {
 	struct ipe_file_blob *file_sec = ipe_file(f);
 
+	kfree(file_sec->app_path);
+
 	memset(file_sec, 0x0, sizeof(*file_sec));
+}
+
+/**
+ * ipe_file_set_userspace_pathname: Allocates a copy of the application provided
+ *				    file path into the file security blob.
+ * @f: The file structure to source the security blob from.
+ * @path: the filename structure to obtain the application path from.
+ *
+ * The deallocation of the copy is performed in ipe_file_free_security.
+ *
+ * Return:
+ * 0 - OK
+ * -ENOMEM - Out of Memory
+ */
+int ipe_file_set_userspace_pathname(struct file *f, const struct filename *path)
+{
+	struct ipe_file_blob *file_sec = ipe_file(f);
+
+	file_sec->app_path = kstrdup(path->name, GFP_KERNEL);
+	if (!file_sec->app_path)
+		return -ENOMEM;
+
+	return 0;
 }
