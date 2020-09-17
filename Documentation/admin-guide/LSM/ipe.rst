@@ -356,6 +356,11 @@ Version 1
    Controls loading IMA certificates through the Kconfigs,
    ``CONFIG_IMA_X509_PATH`` and ``CONFIG_EVM_X509_PATH``.
 
+``READ``:
+
+   Pertains to any file attempting to be read but not to be
+   executed.
+
 ``KERNEL_READ``:
 
    Short hand for all of the following: ``FIRMWARE``, ``KMODULE``,
@@ -432,6 +437,34 @@ This property is controlled by the Kconfig:
 
    dmverity_signature=(TRUE|FALSE)
 
+intended_pathname
+~~~~~~~~~~~~~~~~~~
+
+Version 1
+^^^^^^^^^
+
+This property can be utilized for an application to signal to IPE that this
+file should be checked. The value of the property describes the original
+userland path passed to the open/openat/openat2 syscall, as an absolute path.
+A single wild card ``*`` can be added at the end of the pattern to indicate an
+entire directory subtree.
+This can be used to verify high-security read operations, on things such as
+configuration files (for example, a configuration file describing the
+trusted certificate authorities).
+This property is controlled by the Kconfig: ``CONFIG_IPE_INTENDED_PATHNAME``.
+The format of this property is::
+
+   intended_pathname=AbsFilePath[*]
+
+
+.. WARNING::
+
+  intended_pathname is not a security property. The check can be easily bypassed
+  if the user program is not using the absolute path. Do not use this property
+  to make security decisions, as it is inherently insecure. This property
+  should be used in conjunction with other properties that do provide
+  security claims to make a secure rule.
+
 Policy Examples
 ---------------
 
@@ -485,6 +518,16 @@ Allow only a specific dm-verity volume
    DEFAULT action=DENY
 
    op=EXECUTE dmverity_roothash=401fcec5944823ae12f62726e8184407a5fa9599783f030dec146938 action=ALLOW
+
+Enforce all files opened with +R -X and the path prefix "/etc/ssh" to belong to the initial volume
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+   policy_name="EnforceReadPrefix" policy_version=0.0.0
+   DEFAULT action=ALLOW
+   op=READ intended_pathname="/etc/ssh*" boot_verified=TRUE action=ALLOW
+   #Prevent fallthrough to DEFAULT action=ALLOW
+   op=READ intended_pathname="/etc/ssh*" action=DENY
 
 External Information
 --------------------
