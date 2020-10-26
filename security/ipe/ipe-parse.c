@@ -410,7 +410,7 @@ static void ipe_free_prop(struct ipe_prop_container *cont)
 	if (IS_ERR_OR_NULL(cont))
 		return;
 
-	if (cont->prop->free_val)
+	if (cont->prop && cont->prop->free_val)
 		cont->prop->free_val(&cont->value);
 	kfree(cont);
 }
@@ -443,11 +443,11 @@ static struct ipe_prop_container *ipe_alloc_prop(const struct token *tok)
 
 	INIT_LIST_HEAD(&cont->next);
 
+	cont->prop = prop;
+
 	rc = prop->parse(tok->val, &cont->value);
 	if (rc != 0)
 		goto err;
-
-	cont->prop = prop;
 
 	return cont;
 err:
