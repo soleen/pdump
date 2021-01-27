@@ -92,6 +92,7 @@ static inline void crash_post_resume(void) {}
 
 #if defined(CONFIG_KEXEC_CORE)
 extern const char arm64_relocate_new_kernel[];
+extern const char arm64_kexec_el2_vectors[];
 #endif
 
 /*
@@ -101,6 +102,9 @@ extern const char arm64_relocate_new_kernel[];
  *		kernel, or purgatory entry address).
  * kern_arg0	first argument to kernel is its dtb address. The other
  *		arguments are currently unused, and must be set to 0
+ * el2_vector	If present means that relocation routine will go to EL1
+ *		from EL2 to do the copy, and then back to EL2 to do the jump
+ *		to new world.
  */
 struct kern_reloc_arg {
 	phys_addr_t head;
@@ -109,6 +113,7 @@ struct kern_reloc_arg {
 	phys_addr_t kern_arg1;
 	phys_addr_t kern_arg2;
 	phys_addr_t kern_arg3;
+	phys_addr_t el2_vector;
 };
 
 #define ARCH_HAS_KIMAGE_ARCH

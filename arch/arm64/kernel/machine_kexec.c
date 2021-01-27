@@ -75,19 +75,26 @@ int machine_kexec_post_load(struct kimage *kimage)
 {
 	void *reloc_code = page_to_virt(kimage->control_code_page);
 	struct kern_reloc_arg *kern_reloc_arg = kexec_page_alloc(kimage);
-	long func_offset, reloc_size;
+	long func_offset, vector_offset, reloc_size;
 
 	if (!kern_reloc_arg)
 		return -ENOMEM;
 
 	func_offset = arm64_relocate_new_kernel - __relocate_new_kernel_start;
 	reloc_size = __relocate_new_kernel_end - __relocate_new_kernel_start;
+	vector_offset = arm64_kexec_el2_vectors - __relocate_new_kernel_start;
+
 	memcpy(reloc_code, __relocate_new_kernel_start, reloc_size);
 	kimage->arch.kern_reloc = __pa(reloc_code) + func_offset;
 	kimage->arch.kern_reloc_arg = __pa(kern_reloc_arg);
 	kern_reloc_arg->head = kimage->head;
 	kern_reloc_arg->entry_addr = kimage->start;
 	kern_reloc_arg->kern_arg0 = kimage->arch.dtb_mem;
+
+	/* Setup vector table only when EL2 is available, but no VHE */
+	if (is_hyp_mode_available() && !is_kernel_in_hyp_mode())
+		kern_reloc_arg->el2_vector = __pa(reloc_code) + vector_offset;
+
 	kexec_image_info(kimage);
 
 	/* Flush the reloc_code in preparation for its execution. */
