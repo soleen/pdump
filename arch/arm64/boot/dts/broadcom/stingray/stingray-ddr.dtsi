@@ -14,7 +14,7 @@ ddr {
 		reg = <0x00000000 0x2000>;
 		interrupts = <GIC_SPI 841 IRQ_TYPE_LEVEL_HIGH>,
 			     <GIC_SPI 843 IRQ_TYPE_LEVEL_HIGH>;
-		interrupt-config = <0x4>, <0x8>;
+		interrupt-names = "dram_ecc_errc", "dram_ecc_errd";
 #if (ENABLE_DMC0 == 1)
 		status = "okay";
 #else
@@ -27,7 +27,7 @@ ddr {
 		reg = <0x00080000 0x2000>;
 		interrupts = <GIC_SPI 871 IRQ_TYPE_LEVEL_HIGH>,
 			     <GIC_SPI 873 IRQ_TYPE_LEVEL_HIGH>;
-		interrupt-config = <0x4>, <0x8>;
+		interrupt-names = "dram_ecc_errc", "dram_ecc_errd";
 #if (ENABLE_DMC1 == 1)
 		status = "okay";
 #else
@@ -40,7 +40,7 @@ ddr {
 		reg = <0x00100000 0x2000>;
 		interrupts = <GIC_SPI 901 IRQ_TYPE_LEVEL_HIGH>,
 			     <GIC_SPI 903 IRQ_TYPE_LEVEL_HIGH>;
-		interrupt-config = <0x4>, <0x8>;
+		interrupt-names = "dram_ecc_errc", "dram_ecc_errd";
 #if (ENABLE_DMC2 == 1)
 		status = "okay";
 #else
