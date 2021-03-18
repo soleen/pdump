@@ -18,6 +18,7 @@
 #include <linux/notifier.h>
 #include <linux/vt_kern.h>
 #include <linux/module.h>
+#include <linux/pdump.h>
 #include <linux/random.h>
 #include <linux/ftrace.h>
 #include <linux/reboot.h>
@@ -309,6 +310,9 @@ void panic(const char *fmt, ...)
 	if (!panic_blink)
 		panic_blink = no_blink;
 
+	/* If pdump is enabled reboot via pdump to save core */
+	pdump_reboot();
+
 	if (panic_timeout > 0) {
 		/*
 		 * Delay timeout seconds before rebooting the machine.
@@ -325,6 +329,7 @@ void panic(const char *fmt, ...)
 			mdelay(PANIC_TIMER_STEP);
 		}
 	}
+
 	if (panic_timeout != 0) {
 		/*
 		 * This will not be a clean reboot, with everything

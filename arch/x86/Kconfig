@@ -2028,6 +2028,13 @@ config CRASH_DUMP
 	  (CONFIG_RELOCATABLE=y).
 	  For more details see Documentation/admin-guide/kdump/kdump.rst
 
+config PDUMP
+	bool "pmem based crash dump"
+	select ARCH_KEEP_MEMBLOCK
+	select KEXEC_CORE
+	help
+	  Save part of the crashing kernel to pmem area
+
 config KEXEC_JUMP
 	bool "kexec jump"
 	depends on KEXEC && HIBERNATION

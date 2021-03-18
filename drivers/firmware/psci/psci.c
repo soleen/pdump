@@ -299,14 +299,31 @@ static int get_set_conduit_method(struct device_node *np)
 static int psci_sys_reset(struct notifier_block *nb, unsigned long action,
 			  void *data)
 {
-	if ((reboot_mode == REBOOT_WARM || reboot_mode == REBOOT_SOFT) &&
-	    psci_system_reset2_supported) {
+	/*
+	 * reset_type[31] = 0 (architectural)
+	 * reset_type[30] = 0 (SYSTEM_WARM_RESET)
+	 */
+	u32 reset_type = 0;
+	unsigned long cookie = 0;
+
+	/*
+	 * In case we are rebooting because of crash, and firmware dump
+	 * assistance is in place do warm reboot so memory is not reset.
+	 */
+	if (reboot_mode == REBOOT_CRASH) {
 		/*
-		 * reset_type[31] = 0 (architectural)
-		 * reset_type[30:0] = 0 (SYSTEM_WARM_RESET)
-		 * cookie = 0 (ignored by the implementation)
+		 * reset_type[29] = 1 (SYSTEM_CRASH_RESET)
 		 */
-		invoke_psci_fn(PSCI_FN_NATIVE(1_1, SYSTEM_RESET2), 0, 0, 0);
+		reset_type |= 4;
+		reboot_crash_get_cookie(&cookie);
+		reboot_mode = REBOOT_WARM;
+	}
+	pr_emerg("RESET_TYPE[%x] cookie[%lx]\n", reset_type, cookie);
+
+	if ((reboot_mode == REBOOT_WARM || reboot_mode == REBOOT_SOFT) &&
+		   psci_system_reset2_supported) {
+		invoke_psci_fn(PSCI_FN_NATIVE(1_1, SYSTEM_RESET2),
+			       reset_type, cookie, 0);
 	} else {
 		invoke_psci_fn(PSCI_0_2_FN_SYSTEM_RESET, 0, 0, 0);
 	}

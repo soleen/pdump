@@ -1136,6 +1136,19 @@ config CRASH_DUMP
 
 	  For more details see Documentation/admin-guide/kdump/kdump.rst
 
+config PDUMP
+	bool "pmem based crash dump"
+	select KEXEC_CORE
+	help
+	  Save part of the crashing kernel to pmem area
+
+config PDUMP_FIRMWARE_ASSISTED
+	bool "pmem based crash dump with firmware assistance"
+	select PDUMP
+	help
+	  Use firmware assistance to save part of the crashing kernel to
+	  pmem area
+
 config TRANS_TABLE
 	def_bool y
 	depends on HIBERNATION

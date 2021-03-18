@@ -14488,6 +14488,14 @@ S:	Maintained
 F:	crypto/pcrypt.c
 F:	include/crypto/pcrypt.h
 
+PDUMP
+M:	Pavel Tatashin <pasha.tatashin@soleen.com>
+L:	linux-kernel@vger.kernel.org
+S:	Maintained
+F:	kernel/pdump.c
+F:	include/linux/pdump.h
+F:	Documentation/admin-guide/pdump.rst
+
 PEAQ WMI HOTKEYS DRIVER
 M:	Hans de Goede <hdegoede@redhat.com>
 L:	platform-driver-x86@vger.kernel.org

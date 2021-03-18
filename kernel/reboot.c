@@ -624,7 +624,10 @@ static int __init reboot_setup(char *str)
 		case 'c':
 			*mode = REBOOT_COLD;
 			break;
-
+		case 'd':
+			/* applies only to panic reboot */
+			panic_reboot_mode = REBOOT_CRASH;
+			break;
 		case 'h':
 			*mode = REBOOT_HARD;
 			break;
@@ -685,6 +688,7 @@ __setup("reboot=", reboot_setup);
 #define REBOOT_HARD_STR		"hard"
 #define REBOOT_SOFT_STR		"soft"
 #define REBOOT_GPIO_STR		"gpio"
+#define REBOOT_CRASH_STR	"crash"
 #define REBOOT_UNDEFINED_STR	"undefined"
 
 #define BOOT_TRIPLE_STR		"triple"
@@ -713,6 +717,9 @@ static ssize_t mode_show(struct kobject *kobj, struct kobj_attribute *attr, char
 		break;
 	case REBOOT_GPIO:
 		val = REBOOT_GPIO_STR;
+		break;
+	case REBOOT_CRASH:
+		val = REBOOT_CRASH_STR;
 		break;
 	default:
 		val = REBOOT_UNDEFINED_STR;
@@ -891,3 +898,7 @@ static int __init reboot_ksysfs_init(void)
 late_initcall(reboot_ksysfs_init);
 
 #endif
+
+void __weak reboot_crash_get_cookie(unsigned long *cookie)
+{
+}
