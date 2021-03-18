@@ -20,6 +20,7 @@ enum reboot_mode {
 	REBOOT_HARD,
 	REBOOT_SOFT,
 	REBOOT_GPIO,
+	REBOOT_CRASH,
 };
 extern enum reboot_mode reboot_mode;
 extern enum reboot_mode panic_reboot_mode;
@@ -79,6 +80,8 @@ extern char poweroff_cmd[POWEROFF_CMD_PATH_LEN];
 
 extern void orderly_poweroff(bool force);
 extern void orderly_reboot(void);
+
+void reboot_crash_get_cookie(unsigned long *cookie);
 
 /*
  * Emergency restart, callable from an interrupt handler.
