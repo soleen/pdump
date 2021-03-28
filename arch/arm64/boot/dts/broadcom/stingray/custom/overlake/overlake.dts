@@ -1,0 +1,165 @@
+// SPDX-License-Identifier: (GPL-2.0 or BSD-3-Clause)
+/*
+ *  Copyright(c) 2018 Broadcom
+ */
+
+/dts-v1/;
+
+
+#define NUM_CRYPTO	0
+#define NUM_RAID	0
+#define NUM_SATA	0
+#define ENABLE_NAND	0
+#define ENABLE_SSP0	0
+#define ENABLE_SSP1	0
+#define ENABLE_SDCARD	0
+#define ENABLE_PWM	0
+#define ENABLE_ENET	0
+#define ENABLE_MDIO	0
+#define ENABLE_USB1	0
+#define ENABLE_UART2	0
+#define ENABLE_UART3	0
+
+#define ENABLE_I2C0	1
+#define ENABLE_I2C1	1
+#define ENABLE_EMMC	1
+#define ENABLE_OPTEE	1
+
+#ifndef NUM_PAXB
+#define NUM_PAXB	1
+#define ENABLE_PCIE0	1
+#endif
+
+#ifndef ENABLE_PAXC
+#define ENABLE_PAXC	1
+#endif
+
+#define ENABLE_PAXB_IOMMU	1
+#define ENABLE_PAXC_IOMMU	1
+#define ENABLE_FS4_IOMMU	0
+
+#include "../../stingray-board-base.dtsi"
+#include "../../stingray-dmc.dtsi"
+
+/ {
+	model = "Overlake";
+
+	reserved-memory {
+		/* GIC LPI tables */
+		gic_lpi {
+			reg = <0x0 0x8ad70000 0x0 0x90000>;
+		};
+
+		/* Nitro FW, nitro Crash, Bl31, Bl32 and elog */
+		misc_reserve {
+			reg = <0x0 0x8ae00000 0x0 0x4424000>;
+			no-map;
+		};
+
+		crmu_pg_tbl {
+			reg = <0x8 0x80000000 0x0 0x100000>;
+			no-map;
+		};
+
+		tcg-log@C0000000 {
+			reg = <0x00000000 0xC0000000 0x00000000 0x00010000>;
+		};
+
+		ramoops {
+			compatible = "ramoops";
+			reg = <0x00000009 0x7FC00000 0x00000000 0x00400000>;
+			record-size = <0x80000>;
+			max-reason = <5>;
+		};
+	};
+
+	tpm@0 {
+		compatible = "microsoft,ftpm";
+		linux,sml-base = <0x00000000 0xC0000000>;
+		linux,sml-size = <0x00010000>;
+	};
+
+	/* pmem0: 66M SOC-OS Logging */
+	pmem@980000000 {
+		compatible = "pmem-region";
+		reg = <0x00000009 0x80000000 0x00000000 0x04200000>;
+		volatile;
+	};
+
+	/* pmem1: 10M MOS Logging */
+	pmem@984000000 {
+		compatible = "pmem-region";
+		reg = <0x00000009 0x84200000 0x00000000 0x00A00000>;
+		volatile;
+	};
+
+	/* pmem2: 4M eMMC encryption key */
+	pmem@984800000 {
+		compatible = "pmem-region";
+		reg = <0x00000009 0x84C00000 0x00000000 0x00400000>;
+		volatile;
+	};
+
+	/* pmem3: 4M time deltas */
+	pmem@984C00000 {
+		compatible = "pmem-region";
+		reg = <0x00000009 0x85000000 0x00000000 0x00400000>;
+		volatile;
+	};
+
+	/*
+	 * pmem4: 1964M for netdatapath. This gets hot-added during runtime, therefore
+	 * must always be the last one
+	 */
+	pmem@985000000 {
+		compatible = "pmem-region";
+		reg = <0x00000009 0x85400000 0x00000000 0x7AC00000>;
+		volatile;
+		numa-node-id = <0>;
+	};
+};
+
+&idm_elog {
+		reg = <0x8f213000 0x10000>;
+};
+
+&memory {
+	linux,usable-memory = <
+		0x00000000 0x80000000 0x00000000 0x80000000
+		0x00000008 0x80000000 0x00000001 0x00000000>;
+};
+
+&sdio0 {
+	mmc-hs200-1_8v;
+};
+
+&i2c0 {
+	tca9535@20 {
+		compatible = "nxp,pca9535";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+};
+
+&i2c1 {
+	diagbe@57 {
+		compatible = "microsoft,i2c_slave_diagbe";
+		reg = <0x57>;
+		diagbe,tz-monitor = "ihost0-thermal", "ihost1-thermal",
+				"ihost2-thermal", "ihost3-thermal",
+				"crmu-thermal", "nitro-thermal";
+	};
+};
+
+&qspi {
+	status = "okay";
+};
+
+&crypto_mbox {
+	status = "disabled";
+};
+
+&raid_mbox {
+	status = "disabled";
+};
