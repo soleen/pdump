@@ -73,9 +73,13 @@ struct iproc_msi;
  * @ib: inbound mapping related parameters
  * @ib_map: outbound mapping region related parameters
  *
+ * @irq: interrupt line wired to the generic GIC for INTx
+ * @irq_domain: IRQ domain for INTx
+ *
  * @need_msi_steer: indicates additional configuration of the iProc PCIe
  * controller is required to steer MSI writes to external interrupt controller
  * @msi: MSI data
+ * @intx_lock: spinlock to protect access to INTx related registers
  */
 struct iproc_pcie {
 	struct device *dev;
@@ -100,8 +104,12 @@ struct iproc_pcie {
 	struct iproc_pcie_ib ib;
 	const struct iproc_pcie_ib_map *ib_map;
 
+	int irq;
+	struct irq_domain *irq_domain;
+
 	bool need_msi_steer;
 	struct iproc_msi *msi;
+	spinlock_t intx_lock;
 };
 
 int iproc_pcie_setup(struct iproc_pcie *pcie, struct list_head *res);

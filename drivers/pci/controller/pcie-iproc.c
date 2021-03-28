@@ -14,6 +14,7 @@
 #include <linux/delay.h>
 #include <linux/interrupt.h>
 #include <linux/irqchip/arm-gic-v3.h>
+#include <linux/irqchip/chained_irq.h>
 #include <linux/platform_device.h>
 #include <linux/of_address.h>
 #include <linux/of_pci.h>
@@ -277,6 +278,7 @@ enum iproc_pcie_reg {
 
 	/* enable INTx */
 	IPROC_PCIE_INTX_EN,
+	IPROC_PCIE_INTX_CSR,
 
 	/* outbound address mapping */
 	IPROC_PCIE_OARR0,
@@ -321,6 +323,7 @@ static const u16 iproc_pcie_reg_paxb_bcma[IPROC_PCIE_MAX_NUM_REG] = {
 	[IPROC_PCIE_CFG_ADDR]		= 0x1f8,
 	[IPROC_PCIE_CFG_DATA]		= 0x1fc,
 	[IPROC_PCIE_INTX_EN]		= 0x330,
+	[IPROC_PCIE_INTX_CSR]		= 0x334,
 	[IPROC_PCIE_LINK_STATUS]	= 0xf0c,
 };
 
@@ -332,6 +335,7 @@ static const u16 iproc_pcie_reg_paxb[IPROC_PCIE_MAX_NUM_REG] = {
 	[IPROC_PCIE_CFG_ADDR]		= 0x1f8,
 	[IPROC_PCIE_CFG_DATA]		= 0x1fc,
 	[IPROC_PCIE_INTX_EN]		= 0x330,
+	[IPROC_PCIE_INTX_CSR]		= 0x334,
 	[IPROC_PCIE_OARR0]		= 0xd20,
 	[IPROC_PCIE_OMAP0]		= 0xd40,
 	[IPROC_PCIE_OARR1]		= 0xd28,
@@ -348,6 +352,7 @@ static const u16 iproc_pcie_reg_paxb_v2[IPROC_PCIE_MAX_NUM_REG] = {
 	[IPROC_PCIE_CFG_ADDR]		= 0x1f8,
 	[IPROC_PCIE_CFG_DATA]		= 0x1fc,
 	[IPROC_PCIE_INTX_EN]		= 0x330,
+	[IPROC_PCIE_INTX_CSR]		= 0x334,
 	[IPROC_PCIE_OARR0]		= 0xd20,
 	[IPROC_PCIE_OMAP0]		= 0xd40,
 	[IPROC_PCIE_OARR1]		= 0xd28,
@@ -776,7 +781,6 @@ static void iproc_pcie_perst_ctrl(struct iproc_pcie *pcie, bool assert)
 int iproc_pcie_shutdown(struct iproc_pcie *pcie)
 {
 	iproc_pcie_perst_ctrl(pcie, true);
-	msleep(500);
 
 	return 0;
 }
@@ -855,9 +859,142 @@ static int iproc_pcie_check_link(struct iproc_pcie *pcie)
 	return link_is_active ? 0 : -ENODEV;
 }
 
-static void iproc_pcie_enable(struct iproc_pcie *pcie)
+static void iproc_pcie_mask_irq(struct irq_data *d)
 {
+	struct iproc_pcie *pcie = irq_data_get_irq_chip_data(d);
+	u32 val;
+	unsigned long flags;
+
+	spin_lock_irqsave(&pcie->intx_lock, flags);
+	val =  iproc_pcie_read_reg(pcie, IPROC_PCIE_INTX_EN);
+	val &= ~(BIT(irqd_to_hwirq(d)));
+	iproc_pcie_write_reg(pcie, IPROC_PCIE_INTX_EN, val);
+	spin_unlock_irqrestore(&pcie->intx_lock, flags);
+}
+
+static void iproc_pcie_unmask_irq(struct irq_data *d)
+{
+	struct iproc_pcie *pcie = irq_data_get_irq_chip_data(d);
+	u32 val;
+	unsigned long flags;
+
+	spin_lock_irqsave(&pcie->intx_lock, flags);
+	val =  iproc_pcie_read_reg(pcie, IPROC_PCIE_INTX_EN);
+	val |= (BIT(irqd_to_hwirq(d)));
+	iproc_pcie_write_reg(pcie, IPROC_PCIE_INTX_EN, val);
+	spin_unlock_irqrestore(&pcie->intx_lock, flags);
+}
+
+static struct irq_chip iproc_pcie_irq_chip = {
+	.name = "pcie-iproc-intc",
+	.irq_enable = iproc_pcie_unmask_irq,
+	.irq_disable = iproc_pcie_mask_irq,
+	.irq_mask = iproc_pcie_mask_irq,
+	.irq_unmask = iproc_pcie_unmask_irq,
+};
+
+static int iproc_pcie_intx_map(struct irq_domain *domain, unsigned int irq,
+			       irq_hw_number_t hwirq)
+{
+	irq_set_chip_and_handler(irq, &iproc_pcie_irq_chip, handle_level_irq);
+	irq_set_chip_data(irq, domain->host_data);
+
+	return 0;
+}
+
+static const struct irq_domain_ops intx_domain_ops = {
+	.map = iproc_pcie_intx_map,
+};
+
+static void iproc_pcie_isr(struct irq_desc *desc)
+{
+	struct irq_chip *chip = irq_desc_get_chip(desc);
+	struct iproc_pcie *pcie;
+	struct device *dev;
+	unsigned long status;
+	u32 bit, virq;
+
+	chained_irq_enter(chip, desc);
+	pcie = irq_desc_get_handler_data(desc);
+	dev = pcie->dev;
+
+	/* go through INTx A, B, C, D until all interrupts are handled */
+	do {
+		status = iproc_pcie_read_reg(pcie, IPROC_PCIE_INTX_CSR);
+		for_each_set_bit(bit, &status, PCI_NUM_INTX) {
+			virq = irq_find_mapping(pcie->irq_domain, bit);
+			if (virq)
+				generic_handle_irq(virq);
+			else
+				dev_err(dev, "unexpected INTx%u\n", bit);
+		}
+	} while ((status & SYS_RC_INTX_MASK) != 0);
+
+	chained_irq_exit(chip, desc);
+}
+
+static int iproc_pcie_intx_enable(struct iproc_pcie *pcie)
+{
+	struct device *dev = pcie->dev;
+	struct device_node *node;
+	int ret;
+
+	/*
+	 * BCMA devices do not map INTx the same way as platform devices. All
+	 * BCMA needs below line to enable INTx
+	 */
 	iproc_pcie_write_reg(pcie, IPROC_PCIE_INTX_EN, SYS_RC_INTX_MASK);
+
+	node = of_get_compatible_child(dev->of_node, "brcm,iproc-intc");
+	if (node)
+		pcie->irq = of_irq_get(node, 0);
+
+	if (!node || pcie->irq <= 0)
+		return 0;
+
+	spin_lock_init(&pcie->intx_lock);
+
+	/* set IRQ handler */
+	irq_set_chained_handler_and_data(pcie->irq, iproc_pcie_isr, pcie);
+
+	/* add IRQ domain for INTx */
+	pcie->irq_domain = irq_domain_add_linear(node, PCI_NUM_INTX,
+						 &intx_domain_ops, pcie);
+	if (!pcie->irq_domain) {
+		dev_err(dev, "failed to add INTx IRQ domain\n");
+		ret = -ENOMEM;
+		goto err_rm_handler_data;
+	}
+
+	return 0;
+
+err_rm_handler_data:
+	of_node_put(node);
+	irq_set_chained_handler_and_data(pcie->irq, NULL, NULL);
+
+	return ret;
+}
+
+static void iproc_pcie_intx_disable(struct iproc_pcie *pcie)
+{
+	uint32_t offset, virq;
+	unsigned long flags;
+
+	spin_lock_irqsave(&pcie->intx_lock, flags);
+	iproc_pcie_write_reg(pcie, IPROC_PCIE_INTX_EN, 0x0);
+	spin_unlock_irqrestore(&pcie->intx_lock, flags);
+
+	if (pcie->irq <= 0)
+		return;
+
+	for (offset = 0; offset < PCI_NUM_INTX; offset++) {
+		virq = irq_find_mapping(pcie->irq_domain, offset);
+		if (virq)
+			irq_dispose_mapping(virq);
+	}
+
+	irq_domain_remove(pcie->irq_domain);
+	irq_set_chained_handler_and_data(pcie->irq, NULL, NULL);
 }
 
 static inline bool iproc_pcie_ob_is_valid(struct iproc_pcie *pcie,
@@ -1526,7 +1663,11 @@ int iproc_pcie_setup(struct iproc_pcie *pcie, struct list_head *res)
 		goto err_power_off_phy;
 	}
 
-	iproc_pcie_enable(pcie);
+	ret = iproc_pcie_intx_enable(pcie);
+	if (ret) {
+		dev_err(dev, "failed to enable INTx\n");
+		goto err_power_off_phy;
+	}
 
 	if (IS_ENABLED(CONFIG_PCI_MSI))
 		if (iproc_pcie_msi_enable(pcie))
@@ -1560,6 +1701,7 @@ int iproc_pcie_remove(struct iproc_pcie *pcie)
 	pci_remove_root_bus(host->bus);
 
 	iproc_pcie_msi_disable(pcie);
+	iproc_pcie_intx_disable(pcie);
 
 	phy_power_off(pcie->phy);
 	phy_exit(pcie->phy);
