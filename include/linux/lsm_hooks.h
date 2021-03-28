@@ -581,6 +581,15 @@
  *	Save open-time permission checking state for later use upon
  *	file_permission, and recheck access if anything has changed
  *	since inode_permission.
+ * @file_set_userspace_pathname:
+ *	Save the filename structure, which contains the pathname of the file
+ *	from the userspace, during the call of path_openat function into
+ *	file->f_security for later use by the file_open hook. Note that the
+ *	name should not be trusted as it can contains arbitrary data from
+ *	the userspace.
+ *	@file contains the file structure to update
+ *	@name contains the filename structure to copy
+ *	Return 0 on success.
  *
  * Security hooks for task operations.
  *
@@ -1532,6 +1541,18 @@
  * 	Read perf_event security info if allowed.
  * @perf_event_write:
  * 	Write perf_event security info if allowed.
+ *
+ * @bdev_alloc_security:
+ *	Initialize the security field inside a block_device structure.
+ *
+ * @bdev_free_security:
+ *	Cleanup the security information stored inside a block_device structure.
+ *
+ * @bdev_setsecurity:
+ *	Set a security property associated with @name for @bdev with
+ *	value @value. @size indicates the size of @value in bytes.
+ *	If a @name is not implemented, return -ENOSYS.
+ *
  */
 union security_list_options {
 	#define LSM_HOOK(RET, DEFAULT, NAME, ...) RET (*NAME)(__VA_ARGS__);
@@ -1566,6 +1587,7 @@ struct lsm_blob_sizes {
 	int	lbs_ipc;
 	int	lbs_msg_msg;
 	int	lbs_task;
+	int	lbs_bdev;
 };
 
 /*

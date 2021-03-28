@@ -3355,6 +3355,11 @@ static struct file *path_openat(struct nameidata *nd,
 	file = alloc_empty_file(op->open_flag, current_cred());
 	if (IS_ERR(file))
 		return file;
+	error = security_file_set_userspace_pathname(file, nd->name);
+	if (error) {
+		fput(file);
+		return ERR_PTR(error);
+	}
 
 	if (unlikely(file->f_flags & __O_TMPFILE)) {
 		error = do_tmpfile(nd, flags, op, file);
