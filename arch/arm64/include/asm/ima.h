@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-#ifndef _ASM_POWERPC_IMA_H
-#define _ASM_POWERPC_IMA_H
+#ifndef _ASM_ARM64_IMA_H
+#define _ASM_ARM64_IMA_H
 
 struct kimage;
 
@@ -21,5 +21,4 @@ static inline int setup_ima_buffer(const struct kimage *image, void *fdt,
 	return 0;
 }
 #endif /* CONFIG_IMA_KEXEC */
-
-#endif /* _ASM_POWERPC_IMA_H */
+#endif /* _ASM_ARM64_IMA_H */
