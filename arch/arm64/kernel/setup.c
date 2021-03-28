@@ -29,6 +29,7 @@
 #include <linux/efi.h>
 #include <linux/psci.h>
 #include <linux/sched/task.h>
+#include <linux/sched_clock.h>
 #include <linux/mm.h>
 
 #include <asm/acpi.h>
@@ -281,6 +282,19 @@ u64 cpu_logical_map(int cpu)
 	return __cpu_logical_map[cpu];
 }
 
+u64 persistent_clock(void)
+{
+	return arch_timer_read_cntvct_el0() *
+		(NSEC_PER_SEC / arch_timer_get_cntfrq());
+}
+
+static __init void sched_clock_early_init(void)
+{
+	u64 (*read_time)(void) = arch_timer_read_cntvct_el0;
+
+	sched_clock_register(read_time, BITS_PER_LONG, arch_timer_get_cntfrq());
+}
+
 void __init __no_sanitize_address setup_arch(char **cmdline_p)
 {
 	init_mm.start_code = (unsigned long) _text;
@@ -288,6 +302,8 @@ void __init __no_sanitize_address setup_arch(char **cmdline_p)
 	init_mm.end_data   = (unsigned long) _edata;
 	init_mm.brk	   = (unsigned long) _end;
 
+	sched_clock_early_init();
+	pr_msft("kernel boot start\n");
 	*cmdline_p = boot_command_line;
 
 	/*
