@@ -310,6 +310,8 @@ void reboot_crash_get_cookie(unsigned long *cookie)
 		}
 	}
 	*cookie =  PFN_PHYS(last_epfn);
+	/* XXX hardcode cookie for testing */
+	*cookie = 0xfc800000;
 }
 EXPORT_SYMBOL(reboot_crash_get_cookie);
 #endif
