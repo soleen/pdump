@@ -20,7 +20,7 @@
 			    (((u64)(nhdr)->n_descsz + 3) & ~3))
 
 /* FIXME: this should be set dynamically via kernel parameter or device tree */
-static unsigned long pdump_addr = 0x1C0000000;
+static unsigned long pdump_addr = 0x980000000;
 static unsigned long pdump_size = 0x80000000;
 
 /* Save up-to a page to pdump */
