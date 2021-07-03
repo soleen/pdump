@@ -83,6 +83,8 @@ static int pdump_save_range(unsigned long *phdr_offset,
 	Elf64_Phdr phdr;
 	ssize_t rc;
 
+	pr_err("PASHA data_offset: offset %lx phys %lx virt %lx\n",
+		*data_offset, (unsigned long)start, (unsigned long)__va(start));
 	memset(&phdr, 0, sizeof (phdr));
 	phdr.p_type = PT_LOAD;
 	phdr.p_flags = PF_R|PF_W|PF_X;
@@ -264,7 +266,8 @@ static int pdump_save_notes(unsigned long notes_offset,
 
 int pdump_save(void)
 {
-	unsigned long notes_offset, phdr_offset, data_offset;
+	unsigned long notes_offset, phdr_offset;
+	unsigned long data_offset = 0;
 	int rc;
 
 	rc = pdump_save_elf_header(&phdr_offset, &notes_offset);
