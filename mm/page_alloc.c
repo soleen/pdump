@@ -2071,6 +2071,19 @@ _deferred_grow_zone(struct zone *zone, unsigned int order)
 
 #endif /* CONFIG_DEFERRED_STRUCT_PAGE_INIT */
 
+static void free_highmem_reserve(void)
+{
+	phys_addr_t start_pa = 0x880100000;
+	size_t len = 0xFFC00000;
+	unsigned long start_pfn = PFN_DOWN(start_pa);
+	unsigned long end_pfn = PFN_UP(start_pa + len - 1);
+	unsigned long pfn;
+
+	for (pfn = start_pfn; pfn < end_pfn; pfn++) {
+		free_reserved_page(pfn_to_page(pfn));
+	}
+}
+
 void __init page_alloc_init_late(void)
 {
 	struct zone *zone;
@@ -2113,6 +2126,8 @@ void __init page_alloc_init_late(void)
 
 	for_each_populated_zone(zone)
 		set_zone_contiguous(zone);
+
+	free_highmem_reserve();
 }
 
 #ifdef CONFIG_CMA

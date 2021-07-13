@@ -71,6 +71,10 @@
 			record-size = <0x80000>;
 			max-reason = <5>;
 		};
+		pmem@0x880100000 {
+			/*compatible = "pmem-region";*/
+			reg = <0x00000008 0x80100000 0x00000000 0xFFC00000>;
+		};
 	};
 
 	tpm@0 {
