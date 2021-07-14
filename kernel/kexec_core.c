@@ -39,6 +39,7 @@
 #include <linux/hugetlb.h>
 #include <linux/objtool.h>
 #include <linux/kmsg_dump.h>
+#include <linux/pdump.h>
 
 #include <asm/page.h>
 #include <asm/sections.h>
@@ -959,6 +960,7 @@ void __noclone __crash_kexec(struct pt_regs *regs)
 			crash_setup_regs(&fixed_regs, regs);
 			crash_save_vmcoreinfo();
 			machine_crash_shutdown(&fixed_regs);
+			pdump_save();
 			machine_kexec(kexec_crash_image);
 		}
 		mutex_unlock(&kexec_mutex);
